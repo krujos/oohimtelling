@@ -9,9 +9,7 @@ import os
 token = os.environ['CF_ACCESS_TOKEN']
 headers = {'Authorization': token}
 api = "https://api.10.244.0.34.xip.io"
-api_cache = dict() 
-orgs = dict()
-spaces = dict()
+cache = dict() 
 
 def cf(path):
     r = requests.get(api + path, headers=headers, verify=False)
@@ -21,9 +19,9 @@ def cf(path):
     return r.json()
     
 def api_cache(url):
-    if url not in api_cache: 
-        api_cache[url] = cf(url)
-    return api_cache[url]
+    if url not in cache: 
+        cache[url] = cf(url)
+    return cache[url]
 
 def do_it():
     apps = cf('/v2/apps')
