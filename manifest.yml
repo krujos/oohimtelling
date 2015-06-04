@@ -1,9 +1,10 @@
 ---
 applications:
-- name: demo
-  memory: 128m
+- name: oohimtelling
+  memory: 64m
   random-route: true
   services:
-   - postgres
+   - uaa
+   - cloud_controller
 
   

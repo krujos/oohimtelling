@@ -79,3 +79,13 @@ Should yield you some json that looks something like this
 ```
 
 #Push it to CF
+Make sure you didn't skip the `cups` step above, that would be a disaster. 
+
+`cf push`
+
+Browse to <cf-url>/apps
+
+#TODO
+* Maybe an html page at the route
+* Make skipping ssl validation an option
+* Basic auth with the client secret maybe... 
