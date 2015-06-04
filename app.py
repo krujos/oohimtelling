@@ -36,26 +36,29 @@ def get_space(url):
         spaces[url] = cf(url)
     return spaces[url]
 
-apps = cf('/v2/apps')
+def do_it():
+    apps = cf('/v2/apps')
 
-for app in apps['resources']:
-    name = app['entity']['name']
-    created_at = app['metadata']['created_at']
-    updated_at = app['metadata']['updated_at']
-    buildpack = app['entity']['buildpack']
-    detected_buildpack = app['entity']['detected_buildpack']
-    if buildpack is None: 
-        buildpack = detected_buildpack
-    #org = get_org(app['entity']['org_guid'])
-    org = "foo"
-    space = get_space(app['entity']['space_url'])
-    org = get_org(space['entity']['organization_url'])
-    routes = cf(app['entity']['routes_url'])
-    
-    print("App: " + name + " Buildpack: " +  buildpack + " created at " + created_at + " updated at " + updated_at)
-    print("\tOrg: " + org['entity']['name'] + " Space: " + org['entity']['name'])
-    print ("Routes:")
-    for route in routes['resources']:
-        host = route['entity']['host']
-        domain = get_domain(route['entity']['domain_url'])
-        print("\t" + host + "." + domain['entity']['name'])
+    for app in apps['resources']:
+        name = app['entity']['name']
+        created_at = app['metadata']['created_at']
+        updated_at = app['metadata']['updated_at']
+        buildpack = app['entity']['buildpack']
+        detected_buildpack = app['entity']['detected_buildpack']
+        if buildpack is None: 
+            buildpack = detected_buildpack
+            #org = get_org(app['entity']['org_guid'])
+            org = "foo"
+            space = get_space(app['entity']['space_url'])
+            org = get_org(space['entity']['organization_url'])
+            routes = cf(app['entity']['routes_url'])
+            
+            print("App: " + name + " Buildpack: " +  buildpack + " created at " + created_at + " updated at " + updated_at)
+            print("\tOrg: " + org['entity']['name'] + " Space: " + org['entity']['name'])
+            print ("Routes:")
+            for route in routes['resources']:
+                host = route['entity']['host']
+                domain = get_domain(route['entity']['domain_url'])
+                print("\t" + host + "." + domain['entity']['name'])
+
+do_it()
