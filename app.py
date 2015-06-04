@@ -9,20 +9,30 @@ from flask import jsonify
 
 Flask.get = lambda self, path: self.route(path, methods=['get'])
 
-token = os.environ['CF_ACCESS_TOKEN']
-headers = {'Authorization': token}
+#token = os.environ['CF_ACCESS_TOKEN']
+client_id='oohimtelling'
+client_secret='oohimtelling'
+uaa_url='https://uaa.10.244.0.34.xip.io/oauth/token?grant_type=client_credentials'
 api = "https://api.10.244.0.34.xip.io"
 cache = dict() 
-
 port = 8003
+
 if 'PORT' in os.environ:
     port = int(os.getenv("PORT"))
     
+def get_token():
+    client_auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+    r = requests.get(url=uaa_url, headers={'accept': 'application/json'},
+        params={'grant_type': 'client_credentials'}, auth=client_auth, verify=False)
+    return r.json()
+    
 def cf(path):
-    r = requests.get(api + path, headers=headers, verify=False)
+    token = get_token()
+    access_token="bearer " + token['access_token']
+    hdr = {'Authorization': access_token}
+    r = requests.get(api + path, headers=hdr, verify=False)
     if r.status_code != 200: 
         print("Failed to call CF API (" + path + ")", file=sys.stderr)
-        sys.exit(1)
     return r.json()
     
 def api_cache(url):
@@ -49,10 +59,9 @@ def get_apps():
         routes = cf(app['entity']['routes_url'])
         a['routes'] = []
         for route in routes['resources']:
-            r = {} 
-            r['host'] = route['entity']['host']
-            r['domain'] = api_cache(route['entity']['domain_url'])
-            a['routes'].append(r)
+            host = route['entity']['host']
+            domain = api_cache(route['entity']['domain_url'])['entity']['name']
+            a['routes'].append(host + "." + domain)
         apps.append([a])
         
     return apps
@@ -61,8 +70,7 @@ app = Flask(__name__)
 
 @app.get('/apps')
 def get_root():
-
-    return jsonify(results=get_apps())
+    return jsonify(apps=get_apps())
                 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=port, debug=True)
