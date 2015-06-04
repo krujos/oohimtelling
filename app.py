@@ -35,7 +35,7 @@ app = Flask(__name__)
 
 @app.get('/')
 def get_root():
-    response = "<html><body><pre>"
+    response = ""
     apps = cf('/v2/apps')
 
     for app in apps['resources']:
@@ -59,7 +59,6 @@ def get_root():
                 host = route['entity']['host']
                 domain = api_cache(route['entity']['domain_url'])
                 response += ("\t" + host + "." + domain['entity']['name'])
-    response += "</pre></body></html>"
     return response
                 
 if __name__ == "__main__":
