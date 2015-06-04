@@ -53,7 +53,6 @@ def get_apps():
             r['host'] = route['entity']['host']
             r['domain'] = api_cache(route['entity']['domain_url'])
             a['routes'].append(r)
-        print("Got app")
         apps.append([a])
         
     return apps
