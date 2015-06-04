@@ -9,7 +9,7 @@ import os
 token = os.environ['CF_ACCESS_TOKEN']
 headers = {'Authorization': token}
 api = "https://api.10.244.0.34.xip.io"
-domains = dict() 
+api_cache = dict() 
 orgs = dict()
 spaces = dict()
 
@@ -20,21 +20,10 @@ def cf(path):
         sys.exit(1)
     return r.json()
     
-#It would be good if I could remember how to write a closure.....
-def get_domain(url):
-    if url not in domains: 
-        domains[url] = cf(url)
-    return domains[url]
-
-def get_org(url):
-    if url not in orgs: 
-        orgs[url] = cf(url)
-    return orgs[url]
-
-def get_space(url):
-    if url not in spaces: 
-        spaces[url] = cf(url)
-    return spaces[url]
+def api_cache(url):
+    if url not in api_cache: 
+        api_cache[url] = cf(url)
+    return api_cache[url]
 
 def do_it():
     apps = cf('/v2/apps')
@@ -49,8 +38,8 @@ def do_it():
             buildpack = detected_buildpack
             #org = get_org(app['entity']['org_guid'])
             org = "foo"
-            space = get_space(app['entity']['space_url'])
-            org = get_org(space['entity']['organization_url'])
+            space = api_cache(app['entity']['space_url'])
+            org = api_cache(space['entity']['organization_url'])
             routes = cf(app['entity']['routes_url'])
             
             print("App: " + name + " Buildpack: " +  buildpack + " created at " + created_at + " updated at " + updated_at)
@@ -58,7 +47,7 @@ def do_it():
             print ("Routes:")
             for route in routes['resources']:
                 host = route['entity']['host']
-                domain = get_domain(route['entity']['domain_url'])
+                domain = api_cache(route['entity']['domain_url'])
                 print("\t" + host + "." + domain['entity']['name'])
 
 do_it()
