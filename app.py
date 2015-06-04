@@ -4,6 +4,7 @@ import json
 import requests 
 import sys
 import os
+import time
 from flask import Flask
 from flask import jsonify
 
@@ -16,6 +17,8 @@ uaa_uri = None
 api = None
 cache = dict() 
 port = 8003
+expire_time = 0
+token = None
 
 if 'PORT' in os.environ:
     port = int(os.getenv("PORT"))
@@ -32,14 +35,19 @@ for service in vcap_services['user-provided']:
         
 ###############################################################################
 def get_token():
-    client_auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
-    r = requests.get(url=uaa_uri, headers={'accept': 'application/json'},
-        params={'grant_type': 'client_credentials'}, auth=client_auth, verify=False)
-    return r.json()
+    global expire_time, token
+    if expire_time < time.time(): 
+        client_auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+        r = requests.get(url=uaa_uri, headers={'accept': 'application/json'},
+            params={'grant_type': 'client_credentials'}, auth=client_auth, verify=False)
+        expire_time = time.time() + (int(r.json()['expires_in']) - 60) 
+        token = r.json()['access_token']
+        print( "Token expires at " + str(expire_time))
+        
+    return token 
     
 def cf(path):
-    token = get_token()
-    access_token="bearer " + token['access_token']
+    access_token="bearer " + get_token()
     hdr = {'Authorization': access_token}
     r = requests.get(api + path, headers=hdr, verify=False)
     if r.status_code != 200: 
