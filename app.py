@@ -9,20 +9,31 @@ from flask import jsonify
 
 Flask.get = lambda self, path: self.route(path, methods=['get'])
 
-#token = os.environ['CF_ACCESS_TOKEN']
-client_id='oohimtelling'
-client_secret='oohimtelling'
-uaa_url='https://uaa.10.244.0.34.xip.io/oauth/token?grant_type=client_credentials'
-api = "https://api.10.244.0.34.xip.io"
+vcap_services = json.loads(os.getenv("VCAP_SERVICES"))
+client_id = None
+client_secret = None
+uaa_uri = None
+api = None
 cache = dict() 
 port = 8003
 
 if 'PORT' in os.environ:
     port = int(os.getenv("PORT"))
-    
+
+app = Flask(__name__)
+
+for service in vcap_services['user-provided']:
+    if 'uaa' == service['name']:
+        client_id = service['credentials']['client_id']
+        client_secret = service['credentials']['client_secret']
+        uaa_uri = service['credentials']['uri']
+    elif 'cloud_controller' == service['name']:
+        api = service['credentials']['uri']
+        
+###############################################################################
 def get_token():
     client_auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
-    r = requests.get(url=uaa_url, headers={'accept': 'application/json'},
+    r = requests.get(url=uaa_uri, headers={'accept': 'application/json'},
         params={'grant_type': 'client_credentials'}, auth=client_auth, verify=False)
     return r.json()
     
@@ -66,8 +77,6 @@ def get_apps():
         
     return apps
     
-app = Flask(__name__)
-
 @app.get('/apps')
 def get_root():
     return jsonify(apps=get_apps())
