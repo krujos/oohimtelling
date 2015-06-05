@@ -5,11 +5,14 @@ import requests
 import sys
 import os
 import time
-from flask import Flask
+from flask import Flask, request, Response
 from flask import jsonify
+from functools import wraps
 
 Flask.get = lambda self, path: self.route(path, methods=['get'])
 
+
+##################################The Setup###############################################
 vcap_services = json.loads(os.getenv("VCAP_SERVICES"))
 client_id = None
 client_secret = None
@@ -32,8 +35,25 @@ for service in vcap_services['user-provided']:
         uaa_uri = service['credentials']['uri']
     elif 'cloud_controller' == service['name']:
         api = service['credentials']['uri']
-        
-###############################################################################
+###################################The Auth##############################################
+
+def check_auth(user, password): 
+    return user == client_id and password == client_secret
+    
+def authenticate(): 
+    return Response('You must be authenticated to use this application', 401, 
+    {"WWW-Authenticate": 'Basic realm="Login Required"'})
+    
+def requires_auth(f): 
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+##############################The bidness logic##########################################
 def get_token():
     global expire_time, token
     if expire_time < time.time(): 
@@ -85,7 +105,10 @@ def get_apps():
         
     return apps
     
+###################################Controllers#################################
+    
 @app.get('/apps')
+@requires_auth
 def get_root():
     return jsonify(apps=get_apps())
                 
