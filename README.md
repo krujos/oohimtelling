@@ -19,6 +19,9 @@ json which contains an `access_token` that it will then insert as a `bearer` tok
 
 `cf cups cloud_controller -p '{ "uri": "https://api.10.244.0.34.xip.io" }'`
 
+#Auth
+The app uses http basic auth. Reuse the client_id and client_secret when challenged for creds. 
+
 #Test it locally
 source `env.sh` into your environment to get `VCAP_SERVICES` set locally. It assumes you're using bosh-lite and have created the client as I have above. 
 
