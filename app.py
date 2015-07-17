@@ -92,8 +92,11 @@ def get_apps():
         a['created_at'] = app['metadata']['created_at']
         a['updated_at'] = app['metadata']['updated_at']
         a['app_guid'] = app['metadata']['guid']
+        a['state'] = app['entity']['state']
         buildpack = app['entity']['buildpack']
         detected_buildpack = app['entity']['detected_buildpack']
+        if detected_buildpack is None and detected_buildpack is None:
+            buildpack = "CF HAS NO BUILDPACK INFO FOR THIS APP. INVESTIGATE!"
         if buildpack is None:
             buildpack = detected_buildpack
         a['buildpack'] = buildpack
