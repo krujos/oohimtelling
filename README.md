@@ -102,5 +102,4 @@ Make sure you didn't skip the `cups` step above, that would be a disaster.
 Browse to <cf-url>/apps
 
 #TODO
-* Maybe an html page at the route
-* Basic auth with the client secret maybe...
+* Maybe an html page at the root
