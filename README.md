@@ -46,48 +46,48 @@ Should yield you some json that looks something like this
   "apps": [
     [
       {
-        "buildpack": "Node.js",
-        "created_at": "2015-05-23T23:04:00Z",
-        "name": "node_v1.0",
-        "org": "test-org",
-        "routes": [
-          "node.10.244.0.34.xip.io",
-          "node-prod.10.244.0.34.xip.io"
-        ],
-        "space": "test-space",
-        "updated_at": "2015-05-29T05:43:14Z"
-      }
-    ],
-    [
-      {
-        "buildpack": "Node.js",
-        "created_at": "2015-05-24T00:34:20Z",
-        "name": "node_v1.1",
-        "org": "test-org",
-        "routes": [
-          "node2.10.244.0.34.xip.io",
-          "node-prod.10.244.0.34.xip.io"
-        ],
-        "space": "test-space",
-        "updated_at": "2015-05-29T05:43:14Z"
-      }
-    ],
-    [
-      {
-        "buildpack": "PHP",
-        "created_at": "2015-06-04T04:16:59Z",
-        "name": "php",
+        "app_guid": "0d658ce1-0cf3-403a-aa89-f88c5c0ce09d",
+        "buildpack": null,
+        "created_at": "2015-07-07T16:12:45Z",
+        "name": "investigator",
         "org": "jdk-org",
         "routes": [
-          "php-odontophorous-shovelhead.10.244.0.34.xip.io"
+          "investigator.10.244.0.34.xip.io"
         ],
         "space": "jdk-space",
-        "updated_at": "2015-06-04T04:17:19Z"
+        "updated_at": "2015-07-07T16:12:52Z"
+      }
+    ],
+    [
+      {
+        "app_guid": "af9ecd72-6f74-4d03-9c9f-2c8895808d11",
+        "buildpack": "PHP",
+        "created_at": "2015-07-09T16:38:20Z",
+        "name": "ph",
+        "org": "jdk-org",
+        "routes": [
+          "ph.10.244.0.34.xip.io"
+        ],
+        "space": "jdk-space",
+        "updated_at": "2015-07-09T16:38:36Z"
+      }
+    ],
+    [
+      {
+        "app_guid": "d99911ff-115d-4fa8-9ac7-0d529d6b96ad",
+        "buildpack": "Python",
+        "created_at": "2015-07-17T21:39:58Z",
+        "name": "oohimtelling",
+        "org": "test-org",
+        "routes": [
+          "oohimtelling-pettish-phenetole.10.244.0.34.xip.io"
+        ],
+        "space": "test-space",
+        "updated_at": "2015-07-17T21:57:13Z"
       }
     ]
   ]
 }
-
 ```
 
 #Push it to CF
