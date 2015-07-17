@@ -23,6 +23,7 @@ port = 8003
 expire_time = 0
 token = None
 sslVerify = (os.getenv("VERIFY_SSL") != "false" and os.getenv("VERIFY_SSL") != "FALSE")
+print("Calling CF with sslVerify = " + str(sslVerify))
 
 if 'PORT' in os.environ:
     port = int(os.getenv("PORT"))
@@ -59,6 +60,7 @@ def get_token():
     global expire_time, token
     if expire_time < time.time():
         client_auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+        print("Getting token from " + uaa_uri)
         r = requests.get(url=uaa_uri, headers={'accept': 'application/json'},
             params={'grant_type': 'client_credentials'}, auth=client_auth,
                 verify=sslVerify)
@@ -71,7 +73,8 @@ def get_token():
 def cf(path):
     access_token="bearer " + get_token()
     hdr = {'Authorization': access_token}
-    r = requests.get(api + path, headers=hdr, verify=False)
+    print("Calling " + path)
+    r = requests.get(api + path, headers=hdr, verify=sslVerify)
     if r.status_code != 200:
         print("Failed to call CF API (" + path + ")", file=sys.stderr)
     return r.json()

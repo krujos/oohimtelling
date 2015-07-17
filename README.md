@@ -31,6 +31,10 @@ Setting the environment variable `VERIFY_SSL` to `true` will cause the applicati
 to skip ssl verification. This is handy with bosh-lite installs or installs where
 the application does not know about the root ca of your environment.
 
+#Security Groups
+Make sure the security group applied to your space allows the app to access uaa
+and the cloud controller.
+
 #Test it locally
 source `env.sh` into your environment to get `VCAP_SERVICES` set locally. It assumes you're using bosh-lite and have created the client as I have above.
 
