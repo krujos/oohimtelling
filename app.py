@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import json 
-import requests 
+import json
+import requests
 import sys
 import os
 import time
@@ -18,10 +18,11 @@ client_id = None
 client_secret = None
 uaa_uri = None
 api = None
-cache = dict() 
+cache = dict()
 port = 8003
 expire_time = 0
 token = None
+sslVerify = (os.getenv("VERIFY_SSL") != "false" and os.getenv("VERIFY_SSL") != "FALSE")
 
 if 'PORT' in os.environ:
     port = int(os.getenv("PORT"))
@@ -37,14 +38,14 @@ for service in vcap_services['user-provided']:
         api = service['credentials']['uri']
 ###################################The Auth##############################################
 
-def check_auth(user, password): 
+def check_auth(user, password):
     return user == client_id and password == client_secret
-    
-def authenticate(): 
-    return Response('You must be authenticated to use this application', 401, 
+
+def authenticate():
+    return Response('You must be authenticated to use this application', 401,
     {"WWW-Authenticate": 'Basic realm="Login Required"'})
-    
-def requires_auth(f): 
+
+def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         auth = request.authorization
@@ -56,26 +57,27 @@ def requires_auth(f):
 ##############################The bidness logic##########################################
 def get_token():
     global expire_time, token
-    if expire_time < time.time(): 
+    if expire_time < time.time():
         client_auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
         r = requests.get(url=uaa_uri, headers={'accept': 'application/json'},
-            params={'grant_type': 'client_credentials'}, auth=client_auth, verify=False)
-        expire_time = time.time() + (int(r.json()['expires_in']) - 60) 
+            params={'grant_type': 'client_credentials'}, auth=client_auth,
+                verify=sslVerify)
+        expire_time = time.time() + (int(r.json()['expires_in']) - 60)
         token = r.json()['access_token']
         print( "Token expires at " + str(expire_time))
-        
-    return token 
-    
+
+    return token
+
 def cf(path):
     access_token="bearer " + get_token()
     hdr = {'Authorization': access_token}
     r = requests.get(api + path, headers=hdr, verify=False)
-    if r.status_code != 200: 
+    if r.status_code != 200:
         print("Failed to call CF API (" + path + ")", file=sys.stderr)
     return r.json()
-    
+
 def api_cache(url):
-    if url not in cache: 
+    if url not in cache:
         cache[url] = cf(url)
     return cache[url]
 
@@ -86,9 +88,10 @@ def get_apps():
         a['name'] = app['entity']['name']
         a['created_at'] = app['metadata']['created_at']
         a['updated_at'] = app['metadata']['updated_at']
+        a['app_guid'] = app['metadata']['guid']
         buildpack = app['entity']['buildpack']
         detected_buildpack = app['entity']['detected_buildpack']
-        if buildpack is None: 
+        if buildpack is None:
             buildpack = detected_buildpack
         a['buildpack'] = buildpack
         space = api_cache(app['entity']['space_url'])
@@ -102,15 +105,15 @@ def get_apps():
             domain = api_cache(route['entity']['domain_url'])['entity']['name']
             a['routes'].append(host + "." + domain)
         apps.append([a])
-        
+
     return apps
-    
+
 ###################################Controllers#################################
-    
+
 @app.get('/apps')
 @requires_auth
 def get_root():
     return jsonify(apps=get_apps())
-                
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=port, debug=True)

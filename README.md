@@ -1,9 +1,9 @@
 Oooh I'm Telling
 ================
 
-Report on all the apps that are running in CF, their build packs  and when they got there. 
+Report on all the apps that are running in CF, their build packs  and when they got there.
 
-In order to tell on everyone you need a client with cloud_controller.admin authority. Otherwise you'll only be able to see the apps that are scoped to your identity, which is either none, or whoever you are in Cloud Foundry. 
+In order to tell on everyone you need a client with cloud_controller.admin authority. Otherwise you'll only be able to see the apps that are scoped to your identity, which is either none, or whoever you are in Cloud Foundry.
 
 #Add a client
 ```
@@ -12,7 +12,7 @@ uaac client add oohimtelling --scope uaa.none --authorized_grant_types "authoriz
 
 #Present UAA & CloudController to the APP
 
-In an untested theory you can give your client_id a grant other than client_credentials, but I've only tested this and the code assumes that the UAA URI will return 
+In an untested theory you can give your client_id a grant other than client_credentials, but I've only tested this and the code assumes that the UAA URI will return
 json which contains an `access_token` that it will then insert as a `bearer` token in future requests to the CF CLI. It also assumes uaa provides an `expires_in` field that it will use to grab a new token.
 
 `cf cups uaa -p '{ "uri": "https://uaa.10.244.0.34.xip.io/oauth/token?grant_type=client_credentials", "client_id": "oohimtelling", "client_secret": "oohimtelling" }'`
@@ -20,10 +20,19 @@ json which contains an `access_token` that it will then insert as a `bearer` tok
 `cf cups cloud_controller -p '{ "uri": "https://api.10.244.0.34.xip.io" }'`
 
 #Auth
-The app uses http basic auth. Reuse the client_id and client_secret when challenged for creds. 
+The app uses http basic auth. Reuse the client_id and client_secret when challenged for creds.
+
+#SSL Validation
+If you see this in your logs you most likley have an SSL issue:
+
+`SSLError: [Errno 1] _ssl.c:507: error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed`
+
+Setting the environment variable `VERIFY_SSL` to `true` will cause the application
+to skip ssl verification. This is handy with bosh-lite installs or installs where
+the application does not know about the root ca of your environment.
 
 #Test it locally
-source `env.sh` into your environment to get `VCAP_SERVICES` set locally. It assumes you're using bosh-lite and have created the client as I have above. 
+source `env.sh` into your environment to get `VCAP_SERVICES` set locally. It assumes you're using bosh-lite and have created the client as I have above.
 
 ```
 $ python app.py
@@ -82,7 +91,7 @@ Should yield you some json that looks something like this
 ```
 
 #Push it to CF
-Make sure you didn't skip the `cups` step above, that would be a disaster. 
+Make sure you didn't skip the `cups` step above, that would be a disaster.
 
 `cf push`
 
@@ -90,5 +99,4 @@ Browse to <cf-url>/apps
 
 #TODO
 * Maybe an html page at the route
-* Make skipping ssl validation an option
-* Basic auth with the client secret maybe... 
+* Basic auth with the client secret maybe...
