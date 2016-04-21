@@ -111,6 +111,17 @@ def get_apps():
             host = route['entity']['host']
             domain = api_cache(route['entity']['domain_url'])['entity']['name']
             a['routes'].append(host + "." + domain)
+        a['events'] = []
+        events = cf("/v2/events?q=actee:" + a['app_guid'])
+        for event in events['resources']:
+            e = dict()
+            event_entity = event['entity']
+            e['event_type'] = event_entity['type']
+            e['actor_type'] = event_entity['actor_type']
+            e['actor'] = event_entity['actor_name']
+            e['time'] = event_entity['timestamp']
+            e['metadata'] = event_entity['metadata']
+            a['events'].append(e)
         apps.append([a])
 
     return apps
