@@ -4,7 +4,7 @@ export VCAP_SERVICES='{
     "credentials": {
      "client_id": "oohimtelling",
      "client_secret": "oohimtelling",
-     "uri": "https://uaa.10.244.0.34.xip.io/oauth/token?grant_type=client_credentials"
+     "uri": "http://uaa.local.pcfdev.io/oauth/token?grant_type=client_credentials"
     },
     "label": "user-provided",
     "name": "uaa",
@@ -13,7 +13,7 @@ export VCAP_SERVICES='{
    },
    {
     "credentials": {
-     "uri": "https://api.10.244.0.34.xip.io"
+     "uri": "https://api.local.pcfdev.io"
     },
     "label": "user-provided",
     "name": "cloud_controller",

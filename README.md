@@ -40,7 +40,7 @@ Make sure the security group applied to your space allows the app to access uaa
 and the cloud controller.
 
 #Test it locally
-source `env.sh` into your environment to get `VCAP_SERVICES` set locally. It assumes you're using bosh-lite and have created the client as I have above.
+source `env.sh` into your environment to get `VCAP_SERVICES` set locally. It assumes you're using pcfdev and have created the client as I have above.
 
 ```
 $ python app.py
