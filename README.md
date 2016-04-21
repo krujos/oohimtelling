@@ -9,7 +9,7 @@ In order to tell on everyone you need a client with cloud_controller.admin autho
 ```
 uaac target uaa.local.pcfdev.io --skip-ssl-validation
 uaac token client get admin -s admin-client-secret
-uaac client add oohimtelling --scope uaa.none --authorized_grant_types "authorization_code, client_credentials, refresh_token"  --authorities "cloud_controller.admin cloud_controller.read" --redirect_uri http://example.com
+uaac client add oohimtelling --scope uaa.none --authorized_grant_types "client_credentials"  --authorities "cloud_controller.admin cloud_controller.read" --redirect_uri http://example.com
 ```
 
 Your admin client secret is in your cf manifest, if using pcfdev check [this](https://github.com/pivotal-cf/pcfdev/blob/62dfcabd3cce6dd9e2f82995e444ae99c9fa3e95/images/manifest.yml#L348)
@@ -31,7 +31,7 @@ If you see this in your logs you most likely have an SSL issue:
 
 `SSLError: [Errno 1] _ssl.c:507: error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed`
 
-Setting the environment variable `VERIFY_SSL` to `true` will cause the application
+Setting the environment variable `VERIFY_SSL` to `false` will cause the application
 to skip ssl verification. This is handy with bosh-lite / pcfdev installs or installs where
 the application does not know about the root ca of your environment.
 
