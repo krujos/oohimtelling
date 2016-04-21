@@ -64,6 +64,7 @@ def get_token():
         r = requests.get(url=uaa_uri, headers={'accept': 'application/json'},
             params={'grant_type': 'client_credentials'}, auth=client_auth,
                 verify=sslVerify)
+        print("Response code = " + str(r.status_code))
         expire_time = time.time() + (int(r.json()['expires_in']) - 60)
         token = r.json()['access_token']
         print( "Token expires at " + str(expire_time))

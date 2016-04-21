@@ -7,28 +7,32 @@ In order to tell on everyone you need a client with cloud_controller.admin autho
 
 #Add a client
 ```
+uaac target uaa.local.pcfdev.io --skip-ssl-validation
+uaac token client get admin -s admin-client-secret
 uaac client add oohimtelling --scope uaa.none --authorized_grant_types "authorization_code, client_credentials, refresh_token"  --authorities "cloud_controller.admin cloud_controller.read" --redirect_uri http://example.com
 ```
+
+Your admin client secret is in your cf manifest, if using pcfdev check [this](https://github.com/pivotal-cf/pcfdev/blob/62dfcabd3cce6dd9e2f82995e444ae99c9fa3e95/images/manifest.yml#L348)
 
 #Present UAA & CloudController to the APP
 
 In an untested theory you can give your client_id a grant other than client_credentials, but I've only tested this and the code assumes that the UAA URI will return
 json which contains an `access_token` that it will then insert as a `bearer` token in future requests to the CF CLI. It also assumes uaa provides an `expires_in` field that it will use to grab a new token.
 
-`cf cups uaa -p '{ "uri": "https://uaa.10.244.0.34.xip.io/oauth/token?grant_type=client_credentials", "client_id": "oohimtelling", "client_secret": "oohimtelling" }'`
+`cf cups uaa -p '{ "uri": "http://uaa.local.pcfdev.io/oauth/token?grant_type=client_credentials", "client_id": "oohimtelling", "client_secret": "oohimtelling" }'`
 
-`cf cups cloud_controller -p '{ "uri": "https://api.10.244.0.34.xip.io" }'`
+`cf cups cloud_controller -p '{ "uri": "https://api.local.pcfdev.io" }'`
 
 #Auth
 The app uses http basic auth. Reuse the client_id and client_secret when challenged for creds.
 
 #SSL Validation
-If you see this in your logs you most likley have an SSL issue:
+If you see this in your logs you most likely have an SSL issue:
 
 `SSLError: [Errno 1] _ssl.c:507: error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed`
 
 Setting the environment variable `VERIFY_SSL` to `true` will cause the application
-to skip ssl verification. This is handy with bosh-lite installs or installs where
+to skip ssl verification. This is handy with bosh-lite / pcfdev installs or installs where
 the application does not know about the root ca of your environment.
 
 #Security Groups

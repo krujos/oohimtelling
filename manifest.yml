@@ -3,8 +3,7 @@ applications:
 - name: oohimtelling
   memory: 64m
   random-route: true
+  buildpack: python_buildpack
   services:
    - uaa
    - cloud_controller
-
-  
