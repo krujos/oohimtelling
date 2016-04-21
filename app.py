@@ -117,9 +117,13 @@ def get_apps():
 
 ###################################Controllers#################################
 
+@app.get('/')
+def root():
+    return "you proabably want <a href='/apps'>/apps</a>"
+
 @app.get('/apps')
 @requires_auth
-def get_root():
+def apps():
     return jsonify(apps=get_apps())
 
 if __name__ == "__main__":
