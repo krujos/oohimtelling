@@ -1,9 +1,13 @@
 Oooh I'm Telling
 ================
 
-Report on all the apps that are running in CF, their build packs  and when they got there.
+This is an example app used for demonstrating how the CF api can be used to aid
+operators with change management and reporting. This example reports on all the
+apps that are running in CF, their build packs, events and when they got there.
 
-In order to tell on everyone you need a client with cloud_controller.admin authority. Otherwise you'll only be able to see the apps that are scoped to your identity, which is either none, or whoever you are in Cloud Foundry.
+In order to tell on everyone you need a client with cloud_controller.admin
+authority. Otherwise you'll only be able to see the apps that are scoped to your
+identity, which is either none, or whoever you are in Cloud Foundry.
 
 #Add a client
 ```
