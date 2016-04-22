@@ -94,43 +94,62 @@ def get_apps():
         a['updated_at'] = app['metadata']['updated_at']
         a['app_guid'] = app['metadata']['guid']
         a['state'] = app['entity']['state']
-        buildpack = app['entity']['buildpack']
-        detected_buildpack = app['entity']['detected_buildpack']
-        if detected_buildpack is None and detected_buildpack is None:
-            buildpack = "CF HAS NO BUILDPACK INFO FOR THIS APP. INVESTIGATE!"
-        if buildpack is None:
-            buildpack = detected_buildpack
-        a['buildpack'] = buildpack
+
+        a['buildpack'] = determine_buildpack(app)
+
         space = api_cache(app['entity']['space_url'])
         a['space'] = space['entity']['name']
         org = api_cache(space['entity']['organization_url'])
         a['org'] = org['entity']['name']
         routes = cf(app['entity']['routes_url'])
+
         a['routes'] = []
         for route in routes['resources']:
-            host = route['entity']['host']
-            domain = api_cache(route['entity']['domain_url'])['entity']['name']
-            a['routes'].append(host + "." + domain)
+            a['routes'].append(determine_fqdn(route))
+
         a['events'] = []
         events = cf("/v2/events?q=actee:" + a['app_guid'])
         for event in events['resources']:
-            e = dict()
-            event_entity = event['entity']
-            e['event_type'] = event_entity['type']
-            e['actor_type'] = event_entity['actor_type']
-            e['actor'] = event_entity['actor_name']
-            e['time'] = event_entity['timestamp']
-            e['metadata'] = event_entity['metadata']
-            a['events'].append(e)
+            a['events'].append(make_event(event))
+
         apps.append([a])
 
     return apps
+
+
+def determine_fqdn(route):
+    host = route['entity']['host']
+    domain = api_cache(route['entity']['domain_url'])['entity']['name']
+    hostname = host + "." + domain
+    return hostname
+
+
+def determine_buildpack(app):
+    buildpack = app['entity']['buildpack']
+    detected_buildpack = app['entity']['detected_buildpack']
+    if detected_buildpack is None and detected_buildpack is None:
+        buildpack = "CF HAS NO BUILDPACK INFO FOR THIS APP. INVESTIGATE!"
+    if buildpack is None:
+        buildpack = detected_buildpack
+    return buildpack
+
+
+def make_event(event):
+    e = dict()
+    event_entity = event['entity']
+    e['event_type'] = event_entity['type']
+    e['actor_type'] = event_entity['actor_type']
+    e['actor'] = event_entity['actor_name']
+    e['time'] = event_entity['timestamp']
+    e['metadata'] = event_entity['metadata']
+    return e
+
 
 ###################################Controllers#################################
 
 @app.get('/')
 def root():
-    return "you proabably want <a href='/apps'>/apps</a>"
+    return "you probably want <a href='/apps'>/apps</a>"
 
 @app.get('/apps')
 @requires_auth
